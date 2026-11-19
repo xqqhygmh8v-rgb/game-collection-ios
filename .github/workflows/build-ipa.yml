@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   build:
@@ -70,6 +71,18 @@ jobs:
             echo '```';
           } > /tmp/issue.md
           gh issue create --title "Build failure log (run ${{ github.run_number }})" --body-file /tmp/issue.md || true
+
+      - name: Push failure log to branch
+        if: failure()
+        run: |
+          tail -c 60000 xcodebuild.log > failure-log.txt || echo "(no log)" > failure-log.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan "ci-logs-run-${{ github.run_number }}"
+          git rm -rf . >/dev/null 2>&1 || true
+          git add failure-log.txt
+          git commit -m "xcodebuild failure log (run ${{ github.run_number }})"
+          git push origin "HEAD:refs/heads/ci-logs-run-${{ github.run_number }}"
 
       - name: Publish IPA to release
         uses: softprops/action-gh-release@v2
