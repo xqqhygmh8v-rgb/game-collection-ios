@@ -77,13 +77,21 @@ canvas{display:block;margin:0 auto;max-width:100%;height:auto;border-radius:14px
 .tile{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-weight:800;background:#CDC1B4;color:#776E65;font-variant-numeric:tabular-nums}
 .tile.pop{animation:pop .18s}
 @keyframes pop{0%{transform:scale(.55)}60%{transform:scale(1.14)}100%{transform:scale(1)}}
+:fullscreen{background:var(--bg)}
+:fullscreen body{min-height:100dvh}
+:fullscreen .top{display:none}
+:fullscreen .wrap{max-width:1100px;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;padding-top:12px;padding-bottom:12px}
+:fullscreen .view.active{width:100%}
+:-webkit-full-screen{background:var(--bg)}
+:-webkit-full-screen .top{display:none}
+:-webkit-full-screen .wrap{max-width:1100px;min-height:100dvh}
 </style>
 </head>
 <body>
 <div class="top">
   <span class="badge"><i></i>离线可玩 · 无需联网 · 6 款合一</span>
   <h1>小游戏合集<br>离线版</h1>
-  <p>六款全部升级：更聪明的电脑对手、更顺滑的动画和手感。打开就能玩，添加到主屏幕后跟 App 一样全屏启动。成绩只记本次打开期间，关掉不保留。</p>
+  <p>六款全部升级：更聪明的电脑对手、更顺滑的动画和手感。点任意一款游戏自动进入全屏模式，返回首页自动退出全屏。成绩只记本次打开期间，关掉不保留。</p>
   <div class="actions">
     <button class="btn btn-blue" onclick="downloadOffline()">⬇ 保存离线 HTML 文件</button>
     <button class="btn btn-gray" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">怎么添加到主屏幕？</button>
@@ -180,8 +188,10 @@ canvas{display:block;margin:0 auto;max-width:100%;height:auto;border-radius:14px
 
 <script>
 const BEST={snake:0,g2048:0,temple:0};
-function openGame(id){document.getElementById('home').classList.add('hidden');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+id).classList.add('active');window.scrollTo(0,0);if(id==='snake')initSnake();if(id==='gomoku')initGomoku();if(id==='go')initGo();if(id==='xq')initXQ();if(id==='g2048')init2048();if(id==='temple')initTemple();}
-function goHome(){document.getElementById('home').classList.remove('hidden');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));clearTimeout(snakeTimer);cancelAnimationFrame(templeRAF);
+function enterFullscreen(){try{if(document.fullscreenElement||document.webkitFullscreenElement)return;const el=document.documentElement;if(el.requestFullscreen){const p=el.requestFullscreen({navigationUI:'hide'});if(p&&p.catch)p.catch(()=>{try{el.requestFullscreen()}catch(e){}});}else if(el.webkitRequestFullscreen){el.webkitRequestFullscreen();}}catch(e){try{const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen();else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();}catch(_){}}}
+function exitFullscreen(){try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});else if(document.webkitFullscreenElement&&document.webkitExitFullscreen)document.webkitExitFullscreen();}catch(e){}}
+function openGame(id){enterFullscreen();document.body.classList.add('in-game');document.getElementById('home').classList.add('hidden');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+id).classList.add('active');window.scrollTo(0,0);if(id==='snake')initSnake();if(id==='gomoku')initGomoku();if(id==='go')initGo();if(id==='xq')initXQ();if(id==='g2048')init2048();if(id==='temple')initTemple();}
+function goHome(){exitFullscreen();document.body.classList.remove('in-game');document.getElementById('home').classList.remove('hidden');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));clearTimeout(snakeTimer);cancelAnimationFrame(templeRAF);
  if(BEST.snake)document.getElementById('best-snake').textContent='最高 '+BEST.snake;
  if(BEST.g2048)document.getElementById('best-g2048').textContent='最高 '+BEST.g2048;
  if(BEST.temple)document.getElementById('best-temple').textContent='最佳 '+BEST.temple+' m';}
