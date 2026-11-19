@@ -57,6 +57,20 @@ jobs:
           name: build-log
           path: xcodebuild.log
 
+      - name: Report failure log as issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tail -c 40000 xcodebuild.log > /tmp/tail.txt || echo "(no log)" > /tmp/tail.txt
+          { echo "xcodebuild failed in run ${{ github.run_number }}. Tail of xcodebuild.log:";
+            echo;
+            echo '```';
+            cat /tmp/tail.txt;
+            echo '```';
+          } > /tmp/issue.md
+          gh issue create --title "Build failure log (run ${{ github.run_number }})" --body-file /tmp/issue.md || true
+
       - name: Publish IPA to release
         uses: softprops/action-gh-release@v2
         with:
