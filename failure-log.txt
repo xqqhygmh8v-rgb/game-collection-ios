@@ -1,0 +1,2 @@
+2026-11-19 09:55:25.243 xcodebuild[1156:6765] Writing error result bundle to /var/folders/h5/t85nd63d71x27_8gl5gw3l_w0000gn/T/ResultBundle_2026-19-11_09-55-0025.xcresult
+xcodebuild: error: The flag -scheme, -testProductsPath, or -xctestrun is required when specifying -derivedDataPath.
