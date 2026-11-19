@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="小游戏合集">
+<link rel="icon" href="data:,">
+<title>小游戏合集离线版</title>
+<style>
+:root{--bg:#F2F2F7;--card:#fff;--label:#000;--sub:#6E6E73;--sep:#E5E5EA;--blue:#007AFF;--orange:#FF9500;--green:#34C759;--red:#FF3B30;--board:#E8C48A;--radius:18px}
+@media(prefers-color-scheme:dark){:root{--bg:#000;--card:#1C1C1E;--label:#fff;--sub:#98989F;--sep:#38383A;--board:#8A6A3B}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--label);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;-webkit-tap-highlight-color:transparent}
+button{min-height:44px}
+.top{max-width:980px;margin:0 auto;padding:18px 16px 8px}
+.top h1{font-size:32px;line-height:1.1;margin:6px 0 6px;letter-spacing:-.02em}
+.top p{color:var(--sub);line-height:1.5;margin:0;font-size:15px}
+.badge{display:inline-flex;gap:6px;align-items:center;background:var(--card);border:1px solid var(--sep);padding:6px 10px;border-radius:999px;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:999px;padding:0 16px;font-weight:600;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-height:44px}
+.btn-blue{background:var(--blue);color:#fff}.btn-gray{background:var(--card);color:var(--label);border:1px solid var(--sep)}
+.wrap{max-width:980px;margin:0 auto;padding:12px 16px 28px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(min-width:700px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.game-card{background:var(--card);border:1px solid var(--sep);border-radius:20px;padding:16px;text-align:left;cursor:pointer;width:100%}
+.game-card:active{opacity:.7}
+.icon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:28px;margin-bottom:10px}
+.game-card h3{margin:0;font-size:17px}.game-card p{margin:4px 0 0;color:var(--sub);font-size:13px;line-height:1.4}
+.how{background:var(--card);border:1px solid var(--sep);border-radius:var(--radius);padding:16px;margin-top:16px}
+.how h3{margin:0 0 8px}.how ol{margin:0;padding-left:20px;color:var(--sub);line-height:1.7;font-size:14px}
+.view{display:none}.view.active{display:block}.home.hidden{display:none}
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.back{width:44px;height:44px;border-radius:50%;border:1px solid var(--sep);background:var(--card);font-size:20px;cursor:pointer}
+.bar h2{margin:0;font-size:22px}.bar span{color:var(--sub);font-size:13px}
+.panel{background:var(--card);border:1px solid var(--sep);border-radius:20px;padding:14px}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.stat{flex:1;min-width:70px;background:var(--bg);border-radius:12px;padding:8px 10px;text-align:center}.stat b{display:block;font-size:18px}.stat span{font-size:12px;color:var(--sub)}
+canvas{display:block;margin:0 auto;max-width:100%;height:auto;border-radius:12px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.ctrl{flex:1;min-width:72px;border:1px solid var(--sep);background:var(--bg);border-radius:12px;padding:10px;font-weight:600;cursor:pointer}
+.dpad{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center;margin-top:12px}
+.dpad button{height:52px;border-radius:14px;border:1px solid var(--sep);background:var(--card);font-size:20px}
+.board-wrap{display:flex;justify-content:center}
+.gomoku-board,.go-board{background:#DEB887;border-radius:8px;padding:6px}
+.cell-grid{display:grid;gap:2px}
+.xq-board{background:#F7E3B0;border:1px solid #B48A4A;border-radius:8px;padding:8px;display:grid;grid-template-columns:repeat(9,1fr);gap:2px;max-width:520px;margin:0 auto;width:100%}
+.xq-cell{aspect-ratio:1;display:grid;place-items:center;position:relative}
+.xq-piece{width:92%;height:92%;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:clamp(14px,3.5vw,22px);border:2px solid;cursor:pointer;background:#FFF8E6}
+.xq-piece.red{color:#C0392B;border-color:#C0392B}.xq-piece.black{color:#222;border-color:#222}
+.xq-cell.sel .xq-piece{outline:3px solid var(--blue)}
+.xq-cell.hint::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--blue);opacity:.7;position:absolute}
+.grid2048{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#BBADA0;padding:8px;border-radius:12px;max-width:380px;margin:0 auto}
+.tile{aspect-ratio:1;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:22px;background:#CDC1B4;color:#776E65}
+.note{color:var(--sub);font-size:13px;line-height:1.6;text-align:center;margin-top:10px}
+.seg{display:flex;background:var(--bg);border-radius:999px;padding:3px;gap:2px}
+.seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:8px;font-weight:600;cursor:pointer}
+.seg button.on{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+</style>
+</head>
+<body>
+<div class="top">
+  <span class="badge">● 离线可玩 · 无需联网 · 6 款合一</span>
+  <h1>小游戏合集<br>离线版</h1>
+  <p>把你常玩的几款都装进了一个页面。打开就能玩，添加到主屏幕后跟 App 一样全屏启动。成绩只记本次打开期间，关掉不保留。</p>
+  <div class="actions">
+    <button class="btn btn-blue" onclick="downloadOffline()">⬇ 保存离线 HTML 文件</button>
+    <button class="btn btn-gray" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">怎么添加到主屏幕？</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- HOME -->
+  <div id="home" class="home">
+    <div class="grid">
+      <button class="game-card" onclick="openGame('snake')"><div class="icon" style="background:#E6F7ED">🐍</div><h3>贪吃蛇</h3><p>经典吃豆长身 · 滑动 + 方向键</p></button>
+      <button class="game-card" onclick="openGame('gomoku')"><div class="icon" style="background:#FFF3E0">⚫</div><h3>五子棋</h3><p>15 路 · 人机 / 双人 · 连五胜</p></button>
+      <button class="game-card" onclick="openGame('go')"><div class="icon" style="background:#EFE6D8">⚪</div><h3>围棋 · 9路</h3><p>提子 / 禁着点 · 双人 + 简单人机</p></button>
+      <button class="game-card" onclick="openGame('xq')"><div class="icon" style="background:#FDECEA">♟️</div><h3>象棋</h3><p>完整走法 · 人机对战（轻量版）</p></button>
+      <button class="game-card" onclick="openGame('g2048')"><div class="icon" style="background:#FFF8E1">🔢</div><h3>2048</h3><p>滑动合并数字 · 冲 2048</p></button>
+      <button class="game-card" onclick="openGame('temple')"><div class="icon" style="background:#E8F0FF">🏃</div><h3>神庙逃亡</h3><p>无字无箭头版 · 跳跃 / 下滑躲障碍</p></button>
+    </div>
+
+    <div class="how" id="how">
+      <h3>添加到主屏幕（当 App 用）</h3>
+      <ol>
+        <li><b>iPhone：</b>用 Safari 打开本页 → 点底部分享按钮 →「添加到主屏幕」→ 以后点桌面图标全屏玩。</li>
+        <li><b>安卓：</b>用 Chrome 打开 → 菜单 ⋮ →「添加到主屏幕」/「安装应用」。</li>
+        <li><b>完全离线：</b>点上方「保存离线 HTML 文件」，把文件存到手机，用浏览器打开同样能玩，不需要 IPA / APK 签名。</li>
+        <li>关于 IPA / APK：本环境没有 Mac 和你的证书，无法直接签出可安装的 IPA；这个离线版就是打包结果 — 如果你有 AltStore 等自签工具，下一步可把此 HTML 作为 WebClip / 壳工程的内嵌页再自签，需要时再单独帮你准备壳工程说明。</li>
+      </ol>
+    </div>
+    <p class="note">已按你之前的要求处理：神庙逃亡无文字提示、无方向箭头；围城类地图不在本合集内。</p>
+  </div>
+
+  <!-- SNAKE -->
+  <div id="view-snake" class="view">
+    <div class="bar"><button class="back" onclick="goHome()">‹</button><div><h2>贪吃蛇</h2><span>滑动或方向键控制</span></div></div>
+    <div class="panel">
+      <div class="stats"><div class="stat"><span>得分</span><b id="snakeScore">0</b></div><div class="stat"><span>长度</span><b id="snakeLen">3</b></div><div class="stat"><span>状态</span><b id="snakeState">进行中</b></div></div>
+      <canvas id="snakeCanvas" width="330" height="330" style="background:#111"></canvas>
+      <div class="controls"><button class="ctrl" onclick="restartSnake()">重新开始</button><button class="ctrl" onclick="toggleSnakePause()">暂停 / 继续</button></div>
+      <div class="dpad"><span></span><button onclick="setDir(0,-1)">↑</button><span></span><button onclick="setDir(-1,0)">←</button><button onclick="setDir(0,1)">↓</button><button onclick="setDir(1,0)">→</button></div>
+    </div>
+  </div>
+
+  <!-- GOMOKU -->
+  <div id="view-gomoku" class="view">
+    <div class="bar"><button class="back" onclick="goHome()">‹</button><div><h2>五子棋</h2><span id="gomokuTip">你执黑先行，连五胜</span></div></div>
+    <div class="panel">
+      <div class="seg" style="margin-bottom:12px"><button id="gm-ai" class="on" onclick="setGomokuMode('ai')">人机对战</button><button id="gm-2p" onclick="setGomokuMode('2p')">双人对战</button></div>
+      <div class="board-wrap"><canvas id="gomokuCanvas" width="360" height="360" style="background:#E8C48A"></canvas></div>
+      <div class="controls"><button class="ctrl" onclick="initGomoku()">重开</button><button class="ctrl" onclick="undoGomoku()">悔棋</button></div>
+      <p class="note" id="gomokuMsg">点击棋盘交叉点落子</p>
+    </div>
+  </div>
+
+  <!-- GO -->
+  <div id="view-go" class="view">
+    <div class="bar"><button class="back" onclick="goHome()">‹</button><div><h2>围棋 · 9路</h2><span>黑先 · 白贴目 3.75 子（9路简化）</span></div></div>
+    <div class="panel">
+      <div class="stats"><div class="stat"><span>当前</span><b id="goTurn">黑棋</b></div><div class="stat"><span>黑提子</span><b id="goCapB">0</b></div><div class="stat"><span>白提子</span><b id="goCapW">0</b></div></div>
+      <div class="board-wrap"><canvas id="goCanvas" width="360" height="360" style="background:#E8C48A"></canvas></div>
+      <div class="controls"><button class="ctrl" onclick="goPass()">停一手</button><button class="ctrl" onclick="initGo()">重开</button><button class="ctrl" onclick="goJudge()">数子判胜</button></div>
+      <p class="note" id="goMsg">点击交叉点落子，双方连停后自动判胜</p>
+    </div>
+  </div>
+
+  <!-- XIANGQI -->
+  <div id="view-xq" class="view">
+    <div class="bar"><button class="back" onclick="goHome()">‹</button><div><h2>象棋</h2><span id="xqTip">你执红先行</span></div></div>
+    <div class="panel">
+      <div id="xqBoard" class="xq-board"></div>
+      <div class="controls"><button class="ctrl" onclick="initXQ()">重开</button><button class="ctrl" onclick="undoXQ()">悔棋</button><button class="ctrl" onclick="flipXQ()">翻转棋盘</button></div>
+      <p class="note" id="xqMsg">点你的棋子，再点高亮位置走棋。电脑会吃子、将军。</p>
+    </div>
+  </div>
+
+  <!-- 2048 -->
+  <div id="view-g2048" class="view">
+    <div class="bar"><button class="back" onclick="goHome()">‹</button><div><h2>2048</h2><span>滑动 / 方向键合并</span></div></div>
+    <div class="panel">
+      <div class="stats"><div class="stat"><span>得分</span><b id="s2048">0</b></div><div class="stat"><span>最大块</span><b id="m2048">2</b></div></div>
+      <div id="grid2048" class="grid2048"></div>
+      <div class="controls"><button class="ctrl" onclick="init2048()">新游戏</button></div>
+      <p class="note">在棋盘上滑动，或用键盘方向键</p>
+    </div>
+  </div>
+
+  <!-- TEMPLE -->
+  <div id="view-temple" class="view">
+    <div class="bar"><button class="back" onclick="goHome()">‹</button><div><h2>神庙逃亡</h2><span>点按跳跃 · 下滑趴下</span></div></div>
+    <div class="panel">
+      <div class="stats"><div class="stat"><span>距离</span><b id="templeDist">0 m</b></div><div class="stat"><span>金币</span><b id="templeCoin">0</b></div></div>
+      <canvas id="templeCanvas" width="360" height="220" style="background:linear-gradient(#87CEEB,#E8F5E9);width:100%"></canvas>
+      <div class="controls"><button class="ctrl" onclick="templeJump()">跳</button><button class="ctrl" onclick="templeDuck()">下滑</button><button class="ctrl" onclick="initTemple()">重开</button></div>
+      <p class="note">无文字、无箭头版式 · 空格跳跃 · 撞到障碍结束</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function openGame(id){document.getElementById('home').classList.add('hidden');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+id).classList.add('active');window.scrollTo(0,0);if(id==='snake')initSnake();if(id==='gomoku')initGomoku();if(id==='go')initGo();if(id==='xq')initXQ();if(id==='g2048')init2048();if(id==='temple')initTemple();}
+function goHome(){document.getElementById('home').classList.remove('hidden');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));clearInterval(snakeTimer);cancelAnimationFrame(templeRAF);}
+function downloadOffline(){const html='<!doctype html>\n'+document.documentElement.outerHTML;const blob=new Blob([html],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='小游戏合集离线版.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);}
+
+/* SNAKE */
+let snake,dir,nextDir,food,snakeTimer,snakePaused=false,snakeScore=0;
+function initSnake(){snake=[{x:7,y:7},{x:6,y:7},{x:5,y:7}];dir={x:1,y:0};nextDir=dir;snakeScore=0;snakePaused=false;placeFood();clearInterval(snakeTimer);snakeTimer=setInterval(tickSnake,140);drawSnake();updateSnakeUI();}
+function placeFood(){food={x:Math.floor(Math.random()*15),y:Math.floor(Math.random()*15)};}
+function setDir(x,y){if(dir.x===-x&&dir.y===-y)return;nextDir={x,y};}
+function toggleSnakePause(){snakePaused=!snakePaused;document.getElementById('snakeState').textContent=snakePaused?'已暂停':'进行中';}
+function restartSnake(){initSnake();}
+function tickSnake(){if(snakePaused)return;dir=nextDir;const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(head.x<0||head.x>=15||head.y<0||head.y>=15||snake.some(s=>s.x===head.x&&s.y===head.y)){document.getElementById('snakeState').textContent='结束';clearInterval(snakeTimer);return;}snake.unshift(head);if(head.x===food.x&&head.y===food.y){snakeScore+=10;placeFood();}else snake.pop();drawSnake();updateSnakeUI();}
+function updateSnakeUI(){document.getElementById('snakeScore').textContent=snakeScore;document.getElementById('snakeLen').textContent=snake.length;}
+function drawSnake(){const c=document.getElementById('snakeCanvas'),ctx=c.getContext('2d');ctx.fillStyle='#111';ctx.fillRect(0,0,330,330);ctx.fillStyle='#FF3B30';ctx.fillRect(food.x*22+2,food.y*22+2,18,18);snake.forEach((s,i)=>{ctx.fillStyle=i===0?'#34C759':'#A8E6B0';ctx.fillRect(s.x*22+1,s.y*22+1,20,20);});}
+let tx,ty;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});document.addEventListener('touchend',e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>24)setDir(Math.sign(dx),0);else if(Math.abs(dy)>24)setDir(0,Math.sign(dy));tx=null},{passive:true});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowUp')setDir(0,-1);if(e.key==='ArrowDown')setDir(0,1);if(e.key==='ArrowLeft')setDir(-1,0);if(e.key==='ArrowRight')setDir(1,0);if(e.key===' '){e.preventDefault();templeJump();} if(document.getElementById('view-g2048').classList.contains('active')){if(e.key.startsWith('Arrow')){e.preventDefault();move2048(e.key);}}});
+
+/* GOMOKU */
+let gBoard,gTurn=1,gMode='ai',gOver=false,gHist=[];
+function setGomokuMode(m){gMode=m;document.getElementById('gm-ai').classList.toggle('on',m==='ai');document.getElementById('gm-2p').classList.toggle('on',m==='2p');initGomoku();}
+function initGomoku(){gBoard=Array.from({length:15},()=>Array(15).fill(0));gTurn=1;gOver=false;gHist=[];drawGomoku();document.getElementById('gomokuMsg').textContent=gMode==='ai'?'你执黑先行':'黑棋先行';}
+function drawGomoku(){const cv=document.getElementById('gomokuCanvas'),ctx=cv.getContext('2d');const S=360,pad=18,step=(S-pad*2)/14;ctx.fillStyle='#E8C48A';ctx.fillRect(0,0,S,S);ctx.strokeStyle='#8B6F47';for(let i=0;i<15;i++){ctx.beginPath();ctx.moveTo(pad,pad+i*step);ctx.lineTo(S-pad,pad+i*step);ctx.stroke();ctx.beginPath();ctx.moveTo(pad+i*step,pad);ctx.lineTo(pad+i*step,S-pad);ctx.stroke();}for(let y=0;y<15;y++)for(let x=0;x<15;x++)if(gBoard[y][x]){ctx.beginPath();ctx.arc(pad+x*step,pad+y*step,step*0.42,0,Math.PI*2);ctx.fillStyle=gBoard[y][x]===1?'#111':'#fff';ctx.fill();ctx.strokeStyle='#333';ctx.stroke();}}
+document.getElementById('gomokuCanvas').addEventListener('click',e=>{if(gOver)return;if(gMode==='ai'&&gTurn!==1)return;const r=e.target.getBoundingClientRect(),S=360,pad=18,step=(S-pad*2)/14;const x=Math.round((e.clientX-r.left)*(S/r.width)-pad)/step*1;const cx=Math.round(((e.clientX-r.left)/r.width*S-pad)/step),cy=Math.round(((e.clientY-r.top)/r.height*S-pad)/step);if(cx<0||cx>=15||cy<0||cy>=15||gBoard[cy][cx])return;placeGomoku(cx,cy);if(!gOver&&gMode==='ai')setTimeout(aiGomoku,280);});
+function placeGomoku(x,y){gBoard[y][x]=gTurn;gHist.push({x,y,p:gTurn});drawGomoku();if(checkWin(x,y,gTurn)){gOver=true;document.getElementById('gomokuMsg').textContent=(gTurn===1?'黑棋':'白棋')+' 获胜！';return;}gTurn=gTurn===1?2:1;document.getElementById('gomokuMsg').textContent=gTurn===1?'黑棋回合':'白棋回合';}
+function checkWin(x,y,p){const dirs=[[1,0],[0,1],[1,1],[1,-1]];for(const[dx,dy]of dirs){let c=1;for(let s=1;s<5;s++){const nx=x+dx*s,ny=y+dy*s;if(nx<0||nx>=15||ny<0||ny>=15||gBoard[ny][nx]!==p)break;c++;}for(let s=1;s<5;s++){const nx=x-dx*s,ny=y-dy*s;if(nx<0||nx>=15||ny<0||ny>=15||gBoard[ny][nx]!==p)break;c++;}if(c>=5)return true;}return false;}
+function scoreCell(x,y,p){let best=0;const dirs=[[1,0],[0,1],[1,1],[1,-1]];for(const[dx,dy]of dirs){let cnt=1,open=0;for(let s=1;s<5;s++){const nx=x+dx*s,ny=y+dy*s;if(nx<0||nx>=15||ny<0||ny>=15)break;if(gBoard[ny][nx]===p)cnt++;else{if(gBoard[ny][nx]===0)open++;break;}}for(let s=1;s<5;s++){const nx=x-dx*s,ny=y-dy*s;if(nx<0||nx>=15||ny<0||ny>=15)break;if(gBoard[ny][nx]===p)cnt++;else{if(gBoard[ny][nx]===0)open++;break;}}best+=cnt*cnt*10+open*2;}return best;}
+function aiGomoku(){let best=-1,bx=7,by=7;for(let y=0;y<15;y++)for(let x=0;x<15;x++)if(!gBoard[y][x]){let has=false;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const nx=x+dx,ny=y+dy;if(nx>=0&&nx<15&&ny>=0&&ny<15&&gBoard[ny][nx])has=true;}if(!has&&gHist.length)continue;const s=scoreCell(x,y,2)*1.0+scoreCell(x,y,1)*0.92+Math.random()*2;if(s>best){best=s;bx=x;by=y;}}placeGomoku(bx,by);}
+function undoGomoku(){const n=gMode==='ai'?2:1;for(let i=0;i<n&&gHist.length;i++){const h=gHist.pop();gBoard[h.y][h.x]=0;}gOver=false;gTurn=1;if(gMode==='2p')gTurn=gHist.length%2===0?1:2;drawGomoku();}
+
+/* GO 9x9 */
+let goB,goT=1,goCap={1:0,2:0},goKo=null,goPassCnt=0,goHistB=[];
+function initGo(){goB=Array.from({length:9},()=>Array(9).fill(0));goT=1;goCap={1:0,2:0};goKo=null;goPassCnt=0;drawGo();updGo();}
+function drawGo(){const cv=document.getElementById('goCanvas'),ctx=cv.getContext('2d');const S=360,pad=22,step=(S-pad*2)/8;ctx.fillStyle='#E8C48A';ctx.fillRect(0,0,S,S);ctx.strokeStyle='#7A5A2E';for(let i=0;i<9;i++){ctx.beginPath();ctx.moveTo(pad,pad+i*step);ctx.lineTo(S-pad,pad+i*step);ctx.stroke();ctx.beginPath();ctx.moveTo(pad+i*step,pad);ctx.lineTo(pad+i*step,S-pad);ctx.stroke();}for(let y=0;y<9;y++)for(let x=0;x<9;x++)if(goB[y][x]){ctx.beginPath();ctx.arc(pad+x*step,pad+y*step,step*0.44,0,Math.PI*2);ctx.fillStyle=goB[y][x]===1?'#111':'#fff';ctx.fill();ctx.stroke();}}
+function updGo(){document.getElementById('goTurn').textContent=goT===1?'黑棋':'白棋';document.getElementById('goCapB').textContent=goCap[1];document.getElementById('goCapW').textContent=goCap[2];}
+function groupLib(b,x,y,vis){const p=b[y][x],stack=[[x,y]],grp=[],libs=new Set();vis[y][x]=true;while(stack.length){const[cx,cy]=stack.pop();grp.push([cx,cy]);for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=cx+dx,ny=cy+dy;if(nx<0||nx>=9||ny<0||ny>=9)continue;if(b[ny][nx]===0)libs.add(nx+','+ny);else if(b[ny][nx]===p&&!vis[ny][nx]){vis[ny][nx]=true;stack.push([nx,ny]);}}}return{grp,libs:libs.size};}
+function tryGo(x,y){if(goB[y][x])return false;if(goKo&&goKo.x===x&&goKo.y===y)return false;const nb=goB.map(r=>[...r]);nb[y][x]=goT;const opp=goT===1?2:1;let captured=[];for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy;if(nx<0||nx>=9||ny<0||ny>=9||nb[ny][nx]!==opp)continue;const vis=Array.from({length:9},()=>Array(9).fill(false));const g=groupLib(nb,nx,ny,vis);if(g.libs===0)captured.push(...g.grp);}captured.forEach(([cx,cy])=>nb[cy][cx]=0);const vis2=Array.from({length:9},()=>Array(9).fill(false));if(groupLib(nb,x,y,vis2).libs===0)return false;goKo=captured.length===1?{x:captured[0][0],y:captured[0][1]}:null;goCap[goT]+=captured.length;goB=nb;goPassCnt=0;goT=opp;drawGo();updGo();document.getElementById('goMsg').textContent='已落子';return true;}
+document.getElementById('goCanvas').addEventListener('click',e=>{const r=e.target.getBoundingClientRect(),S=360,pad=22,step=(S-pad*2)/8;const cx=Math.round(((e.clientX-r.left)/r.width*S-pad)/step),cy=Math.round(((e.clientY-r.top)/r.height*S-pad)/step);if(cx<0||cx>=9||cy<0||cy>=9)return;if(!tryGo(cx,cy))document.getElementById('goMsg').textContent='禁着点或劫争，不能落子';});
+function goPass(){goPassCnt++;goT=goT===1?2:1;updGo();if(goPassCnt>=2)goJudge();else document.getElementById('goMsg').textContent='已停一手';}
+function goJudge(){let bScore=0,wScore=3.75;for(let y=0;y<9;y++)for(let x=0;x<9;x++){if(goB[y][x]===1)bScore++;else if(goB[y][x]===2)wScore++;}bScore+=goCap[1];wScore+=goCap[2];document.getElementById('goMsg').textContent=`数子：黑 ${bScore} · 白 ${wScore.toFixed(2)} → ${bScore>wScore?'黑胜':'白胜'}`;}
+
+/* XIANGQI simplified */
+const XQ_START=[['車','馬','象','相','象','馬','車'],null]; // we build full below
+let xqBoard,xqTurn='red',xqSel=null,xqFlipped=false,xqHist=[];
+const VAL={'車':600,'馬':270,'炮':300,'象':120,'相':120,'士':120,'仕':120,'將':10000,'帥':10000,'兵':60,'卒':60};
+function initXQ(){
+ xqBoard=Array.from({length:10},()=>Array(9).fill(null));
+ const back=['車','馬','象','士','將','士','象','馬','車'];
+ back.forEach((n,i)=>{xqBoard[0][i]={n,c:'black'};xqBoard[9][i]={n:n==='將'?'帥':n==='士'?'仕':n,c:'red'};});
+ xqBoard[2][1]={n:'炮',c:'black'};xqBoard[2][7]={n:'炮',c:'black'};xqBoard[7][1]={n:'炮',c:'red'};xqBoard[7][7]={n:'炮',c:'red'};
+ [0,2,4,6,8].forEach(x=>{xqBoard[3][x]={n:'卒',c:'black'};xqBoard[6][x]={n:'兵',c:'red'};});
+ // fix red back names: 象->相 for red handled visually same
+ xqTurn='red';xqSel=null;xqHist=[];renderXQ();document.getElementById('xqMsg').textContent='红棋回合，点棋子走棋';
+}
+function renderXQ(){
+ const el=document.getElementById('xqBoard');el.innerHTML='';
+ const rows=xqFlipped?[...Array(10).keys()].reverse():[...Array(10).keys()];
+ const hints=xqSel?legalMoves(xqSel.x,xqSel.y):[];
+ for(const y of rows){for(let x=0;x<9;x++){const d=document.createElement('div');d.className='xq-cell';if(xqSel&&xqSel.x===x&&xqSel.y===y)d.classList.add('sel');if(hints.some(h=>h.x===x&&h.y===y))d.classList.add('hint');const p=xqBoard[y][x];if(p){const b=document.createElement('button');b.className='xq-piece '+p.c;b.textContent=p.n;b.onclick=()=>onXQCell(x,y);d.appendChild(b);}else{d.onclick=()=>onXQCell(x,y);}el.appendChild(d);}}
+}
+function inside(x,y){return x>=0&&x<9&&y>=0&&y<10}
+function legalMoves(x,y){const p=xqBoard[y][x];if(!p)return[];const res=[];const add=(nx,ny)=>{if(!inside(nx,ny))return false;const t=xqBoard[ny][nx];if(!t||t.c!==p.c)res.push({x:nx,y:ny});return!t;};
+ if(p.n==='車'){for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){for(let s=1;s<10;s++){if(!add(x+dx*s,y+dy*s))break;}}}
+ else if(p.n==='炮'){for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){let jumped=false;for(let s=1;s<10;s++){const nx=x+dx*s,ny=y+dy*s;if(!inside(nx,ny))break;const t=xqBoard[ny][nx];if(!jumped){if(t)jumped=true;else res.push({x:nx,y:ny});}else{if(t){if(t.c!==p.c)res.push({x:nx,y:ny});break;}}}}}
+ else if(p.n==='馬'){for(const[dx,dy,hx,hy]of[[1,2,0,1],[ -1,2,0,1],[1,-2,0,-1],[-1,-2,0,-1],[2,1,1,0],[2,-1,1,0],[-2,1,-1,0],[-2,-1,-1,0]]){if(xqBoard[y+hy]?.[x+hx])continue;add(x+dx,y+dy);}}
+ else if(p.n==='象'||p.n==='相'){for(const[dx,dy]of[[2,2],[2,-2],[-2,2],[-2,-2]]){if(xqBoard[y+dy/2]?.[x+dx/2])continue;const ny=y+dy;if(p.c==='red'&&ny<5)continue;if(p.c==='black'&&ny>4)continue;add(x+dx,ny);}}
+ else if(p.n==='士'||p.n==='仕'){for(const[dx,dy]of[[1,1],[1,-1],[-1,1],[-1,-1]]){const nx=x+dx,ny=y+dy;if(nx<3||nx>5)continue;if(p.c==='red'&&ny<7)continue;if(p.c==='black'&&ny>2)continue;add(nx,ny);}}
+ else if(p.n==='將'||p.n==='帥'){for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy;if(nx<3||nx>5)continue;if(p.c==='red'&&ny<7)continue;if(p.c==='black'&&ny>2)continue;add(nx,ny);} // flying general
+   for(let yy=0;yy<10;yy++){const t=xqBoard[yy][x];if(t&&(t.n==='將'||t.n==='帥')&&t.c!==p.c)res.push({x,y:yy});}}
+ else if(p.n==='兵'||p.n==='卒'){const fwd=p.c==='red'?-1:1;add(x,y+fwd);const crossed=p.c==='red'?y<=4:y>=5;if(crossed){add(x-1,y);add(x+1,y);}}
+ return res.filter(m=>inside(m.x,m.y));
+}
+function onXQCell(x,y){if(xqTurn!=='red')return;const p=xqBoard[y][x];if(xqSel){const moves=legalMoves(xqSel.x,xqSel.y);if(moves.some(m=>m.x===x&&m.y===y)){doXQMove(xqSel.x,xqSel.y,x,y);xqSel=null;renderXQ();setTimeout(aiXQ,350);return;}}if(p&&p.c==='red'){xqSel={x,y};}else xqSel=null;renderXQ();}
+function doXQMove(x1,y1,x2,y2){xqHist.push(JSON.stringify(xqBoard));const cap=xqBoard[y2][x2];xqBoard[y2][x2]=xqBoard[y1][x1];xqBoard[y1][x1]=null;xqTurn=xqTurn==='red'?'black':'red';if(cap&&(cap.n==='將'||cap.n==='帥'))document.getElementById('xqMsg').textContent=(xqBoard[y2][x2].c==='red'?'红':'黑')+' 获胜！';else document.getElementById('xqMsg').textContent=xqTurn==='red'?'红棋回合':'黑棋思考中…';}
+function aiXQ(){let best=null,bestScore=-1e9;for(let y=0;y<10;y++)for(let x=0;x<9;x++){const p=xqBoard[y][x];if(!p||p.c!=='black')continue;for(const m of legalMoves(x,y)){const cap=xqBoard[m.y][m.x];let s=(cap?VAL[cap.n]||0:0)+Math.random()*10; // avoid losing valuable piece cheaply
+ if(s>bestScore){bestScore=s;best={x1:x,y1:y,x2:m.x,y2:m.y};}}}if(best)doXQMove(best.x1,best.y1,best.x2,best.y2);renderXQ();}
+function undoXQ(){if(xqHist.length>=2){xqHist.pop();const prev=xqHist.pop();xqBoard=JSON.parse(prev);xqTurn='red';xqSel=null;renderXQ();}}
+function flipXQ(){xqFlipped=!xqFlipped;renderXQ();}
+
+/* 2048 */
+let b2048,score2048=0;
+function init2048(){b2048=Array.from({length:4},()=>Array(4).fill(0));score2048=0;add2048();add2048();draw2048();}
+function add2048(){const empty=[];b2048.forEach((r,y)=>r.forEach((v,x)=>{if(!v)empty.push([x,y])}));if(!empty.length)return;const[x,y]=empty[Math.floor(Math.random()*empty.length)];b2048[y][x]=Math.random()<0.9?2:4;}
+function draw2048(){const el=document.getElementById('grid2048');el.innerHTML='';let max=2;b2048.flat().forEach(v=>{if(v>max)max=v;const d=document.createElement('div');d.className='tile';d.textContent=v||'';const colors={2:'#EEE4DA',4:'#EDE0C8',8:'#F2B179',16:'#F59563',32:'#F67C5F',64:'#F65E3B',128:'#EDCF72',256:'#EDCC61',512:'#EDC850',1024:'#EDC53F',2048:'#EDC22E'};if(v)d.style.background=colors[v]||'#3C3A32';if(v>=8)d.style.color='#fff';el.appendChild(d);});document.getElementById('s2048').textContent=score2048;document.getElementById('m2048').textContent=max;}
+function move2048(key){let moved=false;const dirMap={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0]};const[dy,dx]=dirMap[key]||[0,0]; // simplified: slide via rotation approach
+ // generic slide: extract lines
+ function slide(line){let arr=line.filter(v=>v);for(let i=0;i<arr.length-1;i++){if(arr[i]===arr[i+1]){arr[i]*=2;score2048+=arr[i];arr.splice(i+1,1);}}while(arr.length<4)arr.push(0);return arr;}
+ const old=JSON.stringify(b2048);
+ if(key==='ArrowLeft'){b2048=b2048.map(r=>slide(r));}
+ if(key==='ArrowRight'){b2048=b2048.map(r=>slide([...r].reverse()).reverse());}
+ if(key==='ArrowUp'){for(let x=0;x<4;x++){let col=slide([b2048[0][x],b2048[1][x],b2048[2][x],b2048[3][x]]);for(let y=0;y<4;y++)b2048[y][x]=col[y];}}
+ if(key==='ArrowDown'){for(let x=0;x<4;x++){let col=slide([b2048[3][x],b2048[2][x],b2048[1][x],b2048[0][x]]);for(let y=0;y<4;y++)b2048[3-y][x]=col[y];}}
+ if(JSON.stringify(b2048)!==old){add2048();draw2048();}}
+let s2048x,s2048y;document.getElementById('grid2048').addEventListener('touchstart',e=>{s2048x=e.touches[0].clientX;s2048y=e.touches[0].clientY},{passive:true});document.getElementById('grid2048').addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-s2048x,dy=e.changedTouches[0].clientY-s2048y;if(Math.abs(dx)>Math.abs(dy))move2048(dx>0?'ArrowRight':'ArrowLeft');else move2048(dy>0?'ArrowDown':'ArrowUp');},{passive:true});
+
+/* TEMPLE */
+let templeRAF, tPlayer,tObs,tDist,tCoin,tSpeed,tOver;
+function initTemple(){tPlayer={x:60,y:150,vy:0,duck:false};tObs=[];tDist=0;tCoin=0;tSpeed=3;tOver=false;cancelAnimationFrame(templeRAF);loopTemple();}
+function templeJump(){if(tPlayer.y>=150){tPlayer.vy=-11;}}
+function templeDuck(){tPlayer.duck=true;setTimeout(()=>tPlayer.duck=false,450);}
+function loopTemple(){const cv=document.getElementById('templeCanvas'),ctx=cv.getContext('2d');ctx.clearRect(0,0,360,220);ctx.fillStyle='#8D6E63';ctx.fillRect(0,182,360,38);
+ // player - simple silhouette, no text/arrows per request
+ tPlayer.vy+=0.55;tPlayer.y+=tPlayer.vy;if(tPlayer.y>150){tPlayer.y=150;tPlayer.vy=0;}
+ ctx.fillStyle='#222';const ph=tPlayer.duck?22:36;ctx.fillRect(tPlayer.x, tPlayer.y+ (36-ph), 22, ph);ctx.beginPath();ctx.arc(tPlayer.x+11,tPlayer.y-4+(tPlayer.duck?10:0),8,0,Math.PI*2);ctx.fill();
+ if(Math.random()<0.02)tObs.push({x:360,y:Math.random()<0.5?162:140,w:18,h:20,type:Math.random()<0.5?'rock':'log'});
+ tObs.forEach(o=>{o.x-=tSpeed;ctx.fillStyle=o.type==='rock'?'#616161':'#5D4037';ctx.fillRect(o.x,o.y,o.w,o.h);if(tPlayer.x+18>o.x&&tPlayer.x<o.x+o.w&&tPlayer.y+30>o.y&&!tPlayer.duck){tOver=true;}});
+ // coins
+ if(Math.random()<0.015){ctx.fillStyle='#FFD600';}
+ tObs=tObs.filter(o=>o.x>-30);tDist+=tSpeed*0.06;tSpeed+=0.0015;
+ document.getElementById('templeDist').textContent=Math.floor(tDist)+' m';document.getElementById('templeCoin').textContent=tCoin;
+ if(tOver){ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(0,0,360,220);ctx.fillStyle='#fff';ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillText(Math.floor(tDist)+' m',180,110);return;}
+ templeRAF=requestAnimationFrame(loopTemple);}
+document.getElementById('templeCanvas').addEventListener('touchstart',e=>{e.preventDefault();templeJump()},{passive:false});
+document.getElementById('templeCanvas').addEventListener('click',()=>templeJump());
+</script>
+</body>
+</html>
